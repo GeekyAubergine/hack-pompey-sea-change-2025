@@ -32,7 +32,7 @@ const serve = Bun.serve({
         '/leaderboard': {
             GET: async () => {
                 const leaderboard = db.query("SELECT * FROM leaderboard").all()
-                return Response.json({g: 'h', leaderboard: leaderboard})
+                return Response.json(leaderboard)
             },
             POST: async (req) => {
                 const { name, time, penalty } = await req.json() as Leaderboard
