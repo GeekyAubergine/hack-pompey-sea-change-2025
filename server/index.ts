@@ -36,7 +36,27 @@ const server = Bun.serve({
                 return Response.json({}, { status: 200 })
             }
         }
-    }
+    },
+    websocket: {
+        message(ws: GameWebsocket, message: string) {
+            gameInstance.networkReceive(ws, JSON.parse(message))
+        },
+        close(ws: GameWebsocket, code, reason) {
+            
+        },
+        open(ws: GameWebsocket) {
+            gameInstance.addPlayer(ws)
+        },
+        ping(ws: GameWebsocket, data) {},
+    },
+    
+    fetch(request, server: Server) {   
+        server.upgrade<WebsocketData>(request, {
+            data: {
+                uuid: request.url.replace('wss://hp25.zoeaubert.me/api?username=', '')
+            }
+        });
+    },
 })
 
 console.log(`Server is running on port ${server.port}`)
