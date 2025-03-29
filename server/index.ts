@@ -1,4 +1,8 @@
 import { Database } from "bun:sqlite";
+import { GameInstance } from "./src/game";
+import {randomUUID} from "crypto";
+import { Server } from "bun";
+import { GameWebsocket, WebsocketData } from "./src/game/ws";
 
 interface Leaderboard {
     name: string
@@ -16,7 +20,14 @@ db.exec(`
     )
 `)
 
-const server = Bun.serve({
+const gameInstance = new GameInstance();
+
+
+setInterval(()=>{
+    gameInstance.tick();
+}, 1000 / 5)
+const serve = Bun.serve({
+    port: 6969,
     routes: {
         '/leaderboard': {
             GET: async () => {
@@ -49,8 +60,8 @@ const server = Bun.serve({
         },
         ping(ws: GameWebsocket, data) {},
     },
-    
-    fetch(request, server: Server) {   
+    fetch(request, server: Server ) {
+        
         server.upgrade<WebsocketData>(request, {
             data: {
                 uuid: request.url.replace('wss://hp25.zoeaubert.me/api?username=', '')
@@ -59,4 +70,4 @@ const server = Bun.serve({
     },
 })
 
-console.log(`Server is running on port ${server.port}`)
+console.log(`Server is running on port ${serve.port}`)
